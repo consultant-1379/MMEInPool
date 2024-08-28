@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlowDefinition xmlns="urn:com:ericsson:schema:xml:oss:fbp_flow"
+                xmlns:oc="urn:com:ericsson:schema:xml:oss:oss_common"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                oc:ns="com.test1" oc:name="testFlow1" oc:version="1.1.0">
+
+    <oc:modelCreationInfo author="author"
+                          creationDate="today">
+        <oc:designedModel componentId="someComponentId"/>
+    </oc:modelCreationInfo>
+
+    <oc:desc>example flows</oc:desc>
+
+    <input name="hcInput1">
+        <attribute name="uri" value="hazelcast:/"/>
+        <attribute name="channelName" value="eps-topic1"/>
+        <!--attribute name="hazelcast.config.file.url"
+			value="classpath:/config/hazelcast.xml" /-->
+    </input>
+
+    <output name="hcOutput1">
+        <attribute name="uri" value="hazelcast:/"/>
+        <attribute name="channelName" value="eps-topic2"/>
+        <!--attribute name="hazelcast.config.file.url"
+                   value="classpath:/config/hazelcast.xml" /-->
+    </output>
+
+    <step name="testComponent">
+        <handler
+                className="com.ericsson.mmepool.handler.generic.GenericComponent"/>
+    </step>
+
+    <step name="eventDuplicator">
+        <handler
+                className="com.ericsson.mmepool.handler.duplicator.EventDuplicatorComponent"/>
+        <attribute name="duplicationCount" value="5"/>
+    </step>
+    <step name="controlEventSender">
+        <handler
+                className="com.ericsson.mmepool.handler.control.ControlEventSenderComponent"/>
+    </step>
+
+    <path>
+        <from uri="hcInput1"/>
+        <to uri="controlEventSender"/>
+        <to uri="testComponent"/>
+        <to uri="eventDuplicator"/>
+        <to uri="hcOutput1"/>
+    </path>
+
+</FlowDefinition>

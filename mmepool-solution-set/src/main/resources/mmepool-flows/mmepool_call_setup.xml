@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlowDefinition xmlns="urn:com:ericsson:schema:xml:oss:fbp_flow"
+	xmlns:oc="urn:com:ericsson:schema:xml:oss:oss_common" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	oc:ns="com.ericsson.mmepool" oc:name="EUTRAN_CALL_SETUP" oc:version="1.0.0">
+
+	<oc:modelCreationInfo author="mmepool" creationDate="2013-09-04">
+		<oc:designedModel componentId="EUTRAN_CALL_SETUP" />
+	</oc:modelCreationInfo>
+
+	<oc:desc>This is the EPS Module for EUTRAN Call Setup Correlations
+	</oc:desc>
+
+	<input name="callSetupHcInput">
+		<attribute name="uri" value="hazelcast:/" />
+        <attribute name="channelName" value="call_setup_topic_input" />
+        <!--attribute name="channelName" value="call_setup_mmepool:11:4:${sys.eps_topic_id}" /-->
+		<!--attribute name="hazelcast.config.file.url"
+			value="file:/opt/ericsson/mmepool/hazelcast-config/hazelcast.xml" /-->
+		<!--attribute name="hazelcast.listener.threadpool.size" value="1" /-->
+		<!--attribute name="hazelcast.listener.threadpool.thread.priority"
+			value="7" /-->
+	</input>
+
+    <output name="callSetupHcOutput">
+        <attribute name="uri" value="hazelcast:/" />
+        <attribute name="channelName" value="call_setup_topic_output" />
+        <!--attribute name="hazelcast.config.file.url"
+                   value="file:/hazelcast-config/hazelcast.xml" /-->
+        <!--attribute name="hazelcast.listener.threadpool.size" value="1" /-->
+        <!--attribute name="hazelcast.listener.threadpool.thread.priority"
+                   value="7" /-->
+    </output>
+
+    <step name="splitter">
+        <handler
+                className="com.ericsson.oss.services.eps.builtin.components.CollectionSplitterComponent" />
+    </step>
+
+    <step name="buffer">
+        <handler className="com.ericsson.oss.itpf.wwecds.sorter.buffer.SorterBuffer" />
+        <attribute name="sorterBuffer.delayTime" value="5000" />
+        <attribute name="sorterBuffer.delayThreads" value="1" />
+        <attribute name="sorterBuffer.delayToAvoidMassiveFlush"
+                   value="0" />
+    </step>
+
+    <step name="callSetupFilter">
+        <handler className="com.ericsson.oss.services.eps.handler.esper.EsperHandler" />
+        <attribute name="configuration.file.path" value="classpath:/config/esper-test-config.xml" />
+
+        <!--attribute name="configuration.file.path"
+                   value="file:/opt/ericsson/mmepool/esper-config/mmepool-esper-configuration.xml" /-->
+        <!--attribute name="configuration.file.path"
+                   value="classpath:/esper-config/mmepool-esper-configuration.xml" /-->
+
+
+        <rule name="callSetupIncomingEvents">
+            <outputPort name="CALL_SETUP" />
+            <outputPort name="FAILED_RRC_CONNECTION" />
+            <outputPort name="FAILED_S1_SIG_CONNECTION" />
+            <outputPort name="FAILED_INITIAL_CTXT_SETUP" />
+            <ruleResource
+                    uri="classpath:/epl/rules_01.epl" />
+        </rule>
+    </step>
+
+
+
+
+
+
+
+
+
+
+
+	<step name="tracker">
+		<handler
+			className="com.ericsson.oss.services.eps.builtin.components.IndividualEventTracker" />
+	</step>
+
+	<step name="ecdstracker">
+		<handler
+			className="com.ericsson.wwecds.correlation.esper.listener.beans.utils.LoggerHandler" />
+	</step>
+
+
+	<path>
+		<from uri="callSetupHcInput" />
+		<to uri="splitter" />
+		<to uri="buffer" />
+		<!-- <to uri="tracker" /> -->
+		<to uri="callSetupFilter" />
+        <to uri="callSetupHcOutput" />
+
+	</path>
+
+</FlowDefinition>

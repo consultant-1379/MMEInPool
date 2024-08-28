@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<esper-configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://www.espertech.com/schema/esper"
+    xsi:noNamespaceSchemaLocation="esper-configuration-4-0.xsd">
+
+    <engine-settings>
+        <defaults>
+            <logging>
+                <execution-path enabled="false" />
+                <timer-debug enabled="false" />
+                <query-plan enabled="false" />
+                <jdbc enabled="false" />
+            </logging>
+            <expression integer-division="false"
+                        division-by-zero-is-null="true" />
+            <expression self-subselect-preeval="false" />
+            <time-source>
+                <time-source-type value="milli" />
+            </time-source>
+            <threading>
+                <threading engine-fairlock="true" />
+                <internal-timer enabled="true" msec-resolution="100" />
+                <listener-dispatch preserve-order="false" />
+                <insert-into-dispatch preserve-order="false"
+                                      timeout-msec="100" locking="spin" />
+                <threadpool-inbound enabled="false" num-threads="1" />
+                <threadpool-outbound enabled="false"
+                                     num-threads="2" capacity="1000" />
+                <threadpool-timerexec enabled="false"
+                                      num-threads="2" />
+                <threadpool-routeexec enabled="false"
+                                      num-threads="2" />
+            </threading>
+            <execution fairlock="true" disable-locking="false"
+                       prioritized="true" />
+            <event-meta>
+                <event-representation type="objectarray" />
+            </event-meta>
+        </defaults>
+    </engine-settings>
+
+    <!-- classes needed by EUTRAN CALL SETUP Epl -->
+    <event-type name="celltrace.INTERNAL_PROC_RRC_CONN_SETUP"
+                class="com.ericsson.xstream.apeventbeans.celltrace.INTERNAL_PROC_RRC_CONN_SETUP" />
+    <event-type name="celltrace.INTERNAL_PROC_S1_SIG_CONN_SETUP"
+                class="com.ericsson.xstream.apeventbeans.celltrace.INTERNAL_PROC_S1_SIG_CONN_SETUP" />
+    <event-type name="celltrace.INTERNAL_PROC_INITIAL_CTXT_SETUP"
+                class="com.ericsson.xstream.apeventbeans.celltrace.INTERNAL_PROC_INITIAL_CTXT_SETUP" />
+
+
+    <plugin-singlerow-function name="formatInternalProcInitialCtxtSetupStartTime"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatInternalProcInitialCtxtSetupStartTime" />
+
+    <plugin-singlerow-function name="formatInternalProcRrcConnSetupStartTime"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatInternalProcRrcConnSetupStartTime" />
+
+    <plugin-singlerow-function name="formatInternalProcS1SigConnSetupStartTime"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatInternalProcS1SigConnSetupStartTime" />
+
+    <plugin-singlerow-function name="formatInternalProcUeCtxtReleaseStartTime"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatInternalProcUeCtxtReleaseStartTime" />
+
+    <plugin-singlerow-function name="formatInternalProcHoPrepX2OutStartTime"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatInternalProcHoPrepX2OutStartTime" />
+
+    <plugin-singlerow-function name="formatInternalProcHoExecX2OutStartTime"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatInternalProcHoExecX2OutStartTime" />
+
+    <plugin-singlerow-function name="formatInternalProcHoPrepX2InStartTime"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatInternalProcHoPrepX2InStartTime" />
+
+    <plugin-singlerow-function name="formatInternalProcHoExecX2InStartTime"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatInternalProcHoExecX2InStartTime" />
+
+    <plugin-singlerow-function name="formatInternalProcHoPrepS1OutStartTime"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatInternalProcHoPrepS1OutStartTime" />
+
+    <plugin-singlerow-function name="formatInternalProcHoExecS1OutStartTime"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatInternalProcHoExecS1OutStartTime" />
+
+    <plugin-singlerow-function name="formatInternalProcHoPrepS1InStartTime"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatInternalProcHoPrepS1InStartTime" />
+
+    <plugin-singlerow-function name="formatInternalProcHoExecS1InStartTime"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatInternalProcHoExecS1InStartTime" />
+
+    <plugin-singlerow-function name="formatInternalProcErabSetupStartTime"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatInternalProcErabSetupStartTime" />
+
+    <plugin-singlerow-function name="formatInternalProcErabReleaseStartTime"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatInternalProcErabReleaseStartTime" />
+
+    <plugin-singlerow-function name="formatArrayENB_S1HO_PREP_IN_RESULT_ARRAY"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatArrayENB_S1HO_PREP_IN_RESULT_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayENB_S1HO_PREP_IN_ERAB_ID_SETUP_REQ_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayENB_S1HO_PREP_IN_ERAB_ID_SETUP_REQ_ARRAY" />
+
+    <plugin-singlerow-function name="formatArrayENB_S1HO_PREP_IN_ERAB_ARP_ARRAY"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatArrayENB_S1HO_PREP_IN_ERAB_ARP_ARRAY" />
+
+    <plugin-singlerow-function name="formatArrayENB_X2HO_PREP_IN_RESULT_ARRAY"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatArrayENB_X2HO_PREP_IN_RESULT_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayENB_X2HO_PREP_IN_ERAB_ID_SETUP_REQ_ARRRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayENB_X2HO_PREP_IN_ERAB_ID_SETUP_REQ_ARRRAY" />
+
+    <plugin-singlerow-function name="formatArrayENB_X2HO_PREP_IN_ERAB_ARP_ARRAY"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatArrayENB_X2HO_PREP_IN_ERAB_ARP_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayERABRELEASE_ERAB_FAILURE_3GPP_CAUSE_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayERABRELEASE_ERAB_FAILURE_3GPP_CAUSE_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayERABRELEASE_ERAB_FAILURE_3GPP_CAUSE_GROUP_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayERABRELEASE_ERAB_FAILURE_3GPP_CAUSE_GROUP_ARRAY" />
+
+    <plugin-singlerow-function name="formatArrayERABRELEASE_ERAB_REQ_PVI_ARRAY"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatArrayERABRELEASE_ERAB_REQ_PVI_ARRAY" />
+
+    <plugin-singlerow-function name="formatArrayERABRELEASE_ERAB_REQ_PCI_ARRAY"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatArrayERABRELEASE_ERAB_REQ_PCI_ARRAY" />
+
+    <plugin-singlerow-function name="formatArrayERABRELEASE_ERAB_REQ_ARP_ARRAY"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatArrayERABRELEASE_ERAB_REQ_ARP_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayERABRELEASE_ERAB_REQ_3GPP_CAUSE_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayERABRELEASE_ERAB_REQ_3GPP_CAUSE_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayERABRELEASE_ERAB_REQ_3GPP_CAUSE_GROUP_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayERABRELEASE_ERAB_REQ_3GPP_CAUSE_GROUP_ARRAY" />
+
+    <plugin-singlerow-function name="formatArrayERABRELEASE_ERAB_REQ_QCI_ARRAY"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatArrayERABRELEASE_ERAB_REQ_QCI_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayERAB_SETUP_ERAB_FAILURE_3GPP_CAUSE_GROUP_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayERAB_SETUP_ERAB_FAILURE_3GPP_CAUSE_GROUP_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayERAB_SETUP_ERAB_SUCC_ATT_ACC_TYPE_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayERAB_SETUP_ERAB_SUCC_ATT_ACC_TYPE_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayERAB_SETUP_ERAB_REQ_ATT_ACC_TYPE_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayERAB_SETUP_ERAB_REQ_ATT_ACC_TYPE_ARRAY" />
+
+    <plugin-singlerow-function name="formatArrayERAB_SETUP_ERAB_REQ_PVI_ARRAY"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatArrayERAB_SETUP_ERAB_REQ_PVI_ARRAY" />
+
+    <plugin-singlerow-function name="formatArrayERAB_SETUP_ERAB_REQ_PCI_ARRAY"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatArrayERAB_SETUP_ERAB_REQ_PCI_ARRAY" />
+
+    <plugin-singlerow-function name="formatArrayERAB_SETUP_ERAB_ARP_ARRAY"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatArrayERAB_SETUP_ERAB_ARP_ARRAY" />
+
+    <plugin-singlerow-function name="formatArrayERAB_SETUP_ERAB_QCI_ARRAY"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatArrayERAB_SETUP_ERAB_QCI_ARRAY" />
+
+    <plugin-singlerow-function name="formatArrayERAB_SETUP_ERAB_RESULT_ARRAY"
+                               function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+                               function-method="formatArrayERAB_SETUP_ERAB_RESULT_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayINITIAL_CTXT_SETUP_ERAB_RESULT_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayINITIAL_CTXT_SETUP_ERAB_RESULT_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayINITIAL_CTXT_SETUP_ERAB_QCI_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayINITIAL_CTXT_SETUP_ERAB_QCI_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayINITIAL_CTXT_SETUP_ERAB_REQ_PCI_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayINITIAL_CTXT_SETUP_ERAB_REQ_PCI_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayINITIAL_CTXT_SETUP_ERAB_REQ_ATT_ACC_TYPE_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayINITIAL_CTXT_SETUP_ERAB_REQ_ATT_ACC_TYPE_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayINITIAL_CTXT_SETUP_ERAB_FAILURE_3GPP_CAUSE_GROUP_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayINITIAL_CTXT_SETUP_ERAB_FAILURE_3GPP_CAUSE_GROUP_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayINITIAL_CTXT_SETUP_ERAB_ARP_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayINITIAL_CTXT_SETUP_ERAB_ARP_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayINITIAL_CTXT_SETUP_ERAB_REQ_PVI_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayINITIAL_CTXT_SETUP_ERAB_REQ_PVI_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayINITIAL_CTXT_SETUP_ERAB_SUCC_ATT_ACC_TYPE_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayINITIAL_CTXT_SETUP_ERAB_SUCC_ATT_ACC_TYPE_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayINITIAL_CTXT_SETUP_ERAB_FAILURE_3GPP_CAUSE_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayINITIAL_CTXT_SETUP_ERAB_FAILURE_3GPP_CAUSE_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayENB_UECTXTRELEASE_ERAB_DATA_LOST_BITMAP"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayENB_UECTXTRELEASE_ERAB_DATA_LOST_BITMAP" />
+
+    <plugin-singlerow-function
+            name="formatArrayENB_UECTXTRELEASE_HO_OUT_PREP_ERAB_FAIL_BITMAP"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayENB_UECTXTRELEASE_HO_OUT_PREP_ERAB_FAIL_BITMAP" />
+
+    <plugin-singlerow-function
+            name="formatArrayENB_UECTXTRELEASE_ERAB_RELEASE_REQ_QCI_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayENB_UECTXTRELEASE_ERAB_RELEASE_REQ_QCI_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayENB_UECTXTRELEASE_ERAB_RELEASE_REQ_ARP_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayENB_UECTXTRELEASE_ERAB_RELEASE_REQ_ARP_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayENB_UECTXTRELEASE_ERAB_RELEASE_REQ_PCI_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayENB_UECTXTRELEASE_ERAB_RELEASE_REQ_PCI_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayENB_UECTXTRELEASE_ERAB_RELEASE_REQ_PVI_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayENB_UECTXTRELEASE_ERAB_RELEASE_REQ_PVI_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayENB_UECTXTRELEASE_HO_OUT_PREP_ERAB_FAIL_AND_DATA_LOST_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayENB_UECTXTRELEASE_HO_OUT_PREP_ERAB_FAIL_AND_DATA_LOST_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayENB_UECTXTRELEASE_HO_OUT_EXEC_ERAB_FAIL_AND_DATA_LOST_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayENB_UECTXTRELEASE_HO_OUT_EXEC_ERAB_FAIL_AND_DATA_LOST_ARRAY" />
+
+    <plugin-singlerow-function
+            name="formatArrayERAB_SETUP_ERAB_FAILURE_3GPP_CAUSE_ARRAY"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="formatArrayERAB_SETUP_ERAB_FAILURE_3GPP_CAUSE_ARRAY" />
+
+    <plugin-singlerow-function
+            name="getSuccessfulERABCount"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="getSuccessfulERABCount" />
+
+    <plugin-singlerow-function
+            name="getSuccessfulCtxtERABCount"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="getSuccessfulCtxtERABCount" />
+
+    <plugin-singlerow-function
+            name="isAttachBearerCauseIsValid"
+            function-class="com.ericsson.mmepool.correlations.esper.plugin.CorrelationRowFunctions"
+            function-method="isAttachBearerCauseIsValid" />
+
+    <event-type name="CALL_SETUP"
+                class="com.ericsson.mmepool.correlations.esper.listener.beans.eutran.session.LTE_EUTRAN_SESSION_CALL_SETUP">
+        <legacy-type accessor-style="javabean" copy-method="cloneMe"
+                     property-resolution-style="case_insensitive" code-generation="enabled" />
+    </event-type>
+
+</esper-configuration>   

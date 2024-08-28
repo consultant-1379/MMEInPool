@@ -1,0 +1,11 @@
+# WARNING!
+# WARNING!
+# WARNING!
+
+# SHOULD BE USED ONLY FOR TESTING - WHEN WE DO NOT HAVE ENOUGH STORAGE FOR OUTPUT FILES
+# EVERY MINUTE DELETES ALL CSV FILES FROM NORTHBOUND FOLDERS
+# TO EXECUTE IT DO crontab /path/to/this/file/cron_jobs.txt
+# TO SEE ALL CRONJOBS TYPE crontab -l
+
+* * * * * rm -rf /northbound/ericsson/files/cell_measurement/*.csv
+* * * * * rm -rf /northbound/ericsson/files/ECDS/*.csv

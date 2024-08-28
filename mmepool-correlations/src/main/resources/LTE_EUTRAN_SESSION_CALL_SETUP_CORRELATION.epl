@@ -1,0 +1,153 @@
+expression getCtxtSetupStartTime{contextSetup => formatInternalProcInitialCtxtSetupStartTime(contextSetup)}
+expression getRrcSetupStartTime{rrcSetup => formatInternalProcRrcConnSetupStartTime(rrcSetup)}
+expression getS1SigSetupStartTime{s1SigConnSetup => formatInternalProcS1SigConnSetupStartTime(s1SigConnSetup)}
+
+@Name('CALL_SETUP')
+insert into CALL_SETUP
+	select
+		'CALL_SETUP_EVENT'											       						as name,
+		contextSetup.version    									   							as version,
+		contextSetup.timestamp 																	as timestamp,
+		contextSetup.subNetwork 									  							as subNetwork,
+		contextSetup.ne     									   								as ne,
+		current_timestamp()																		as CORRELATION_TIME,
+		
+		contextSetup.ENBS1APID									 								as ENB_S1_AP_ID,
+		contextSetup.MMES1APID									 								as MME_S1_AP_ID,
+		contextSetup.GUMMEI																		as GUMMEI,
+		contextSetup.RAC_UE_REF   									            				as RAC_UE_REF,
+		
+		contextSetup.GLOBAL_CELL_ID																as INITIAL_CTXT_SETUP_GLOBAL_CELL_ID,
+		contextSetup.p_3GPP_CAUSE  																as INITIAL_CTXT_SETUP_3GPP_CAUSE,
+		contextSetup.INITIAL_CTXT_RESULT														as INITIAL_CTXT_SETUP_INITIAL_CTXT_RESULT,
+		contextSetup.p_3GPP_CAUSE_GROUP															as INITIAL_CTXT_SETUP_3GPP_CAUSE_GROUP,
+		getCtxtSetupStartTime(contextSetup) 													as INITIAL_CTXT_SETUP_TIMESTAMP_START,
+		contextSetup.timestamp - getCtxtSetupStartTime(contextSetup) 							as INITIAL_CTXT_SETUP_DURATION,
+		contextSetup.SERVING_PLMN_ID															as INITIAL_CTXT_SETUP_SERVING_PLMN_ID,
+		formatArrayINITIAL_CTXT_SETUP_ERAB_RESULT_ARRAY(contextSetup)							as INITIAL_CTXT_SETUP_ERAB_RESULT_ARRAY,
+		formatArrayINITIAL_CTXT_SETUP_ERAB_QCI_ARRAY(contextSetup)								as INITIAL_CTXT_SETUP_ERAB_QCI_ARRAY,
+		formatArrayINITIAL_CTXT_SETUP_ERAB_REQ_PCI_ARRAY(contextSetup)							as INITIAL_CTXT_SETUP_ERAB_REQ_PCI_ARRAY,
+		formatArrayINITIAL_CTXT_SETUP_ERAB_REQ_ATT_ACC_TYPE_ARRAY(contextSetup)					as INITIAL_CTXT_SETUP_ERAB_REQ_ATT_ACC_TYPE_ARRAY,
+		formatArrayINITIAL_CTXT_SETUP_ERAB_FAILURE_3GPP_CAUSE_GROUP_ARRAY(contextSetup)			as INITIAL_CTXT_SETUP_ERAB_FAILURE_3GPP_CAUSE_GROUP_ARRAY,
+		formatArrayINITIAL_CTXT_SETUP_ERAB_ARP_ARRAY(contextSetup)                				as INITIAL_CTXT_SETUP_ERAB_ARP_ARRAY,	
+		formatArrayINITIAL_CTXT_SETUP_ERAB_REQ_PVI_ARRAY(contextSetup)   		  				as INITIAL_CTXT_SETUP_ERAB_REQ_PVI_ARRAY,
+		formatArrayINITIAL_CTXT_SETUP_ERAB_SUCC_ATT_ACC_TYPE_ARRAY(contextSetup)  				as INITIAL_CTXT_SETUP_ERAB_SUCC_ATT_ACC_TYPE_ARRAY,
+		formatArrayINITIAL_CTXT_SETUP_ERAB_FAILURE_3GPP_CAUSE_ARRAY(contextSetup) 				as INITIAL_CTXT_SETUP_ERAB_FAILURE_3GPP_CAUSE_ARRAY,
+		
+		rrcSetup.INITIAL_UE_IDENTITY_TYPE										 				as RRC_CONN_SETUP_INITIAL_UE_IDENTITY_TYPE,
+		rrcSetup.INITIAL_UE_IDENTITY 															as RRC_CONN_SETUP_INITIAL_UE_IDENTITY,
+		rrcSetup.RRC_RESULT																		as RRC_CONN_SETUP_RRC_RESULT,
+		rrcSetup.RRC_ESTABL_CAUSE																as RRC_CONN_SETUP_RRC_ESTABL_CAUSE,
+		getRrcSetupStartTime(rrcSetup) 															as RRC_CONN_SETUP_TIMESTAMP_START,
+		rrcSetup.timestamp - getRrcSetupStartTime(rrcSetup) 									as RRC_CONN_SETUP_DURATION,
+		rrcSetup.GLOBAL_CELL_ID																	as RRC_CONN_SETUP_GLOBAL_CELL_ID,
+		
+		s1SigConnSetup.GLOBAL_CELL_ID															as s1_SIG_CONN_SETUP_GLOBAL_CELL_ID,
+		s1SigConnSetup.s1_SIG_CONN_RESULT														as s1_SIG_CONN_SETUP_SIG_CONN_RESULT,
+		getS1SigSetupStartTime(s1SigConnSetup) 													as s1_SIG_CONN_SETUP_TIMESTAMP_START,
+		s1SigConnSetup.timestamp - getS1SigSetupStartTime(s1SigConnSetup) 						as s1_SIG_CONN_SETUP_DURATION,
+		s1SigConnSetup.RRC_ESTABL_CAUSE															as s1_SIG_CONN_SETUP_RRC_ESTABL_CAUSE
+		
+	from 
+		celltrace.INTERNAL_PROC_INITIAL_CTXT_SETUP(INITIAL_CTXT_RESULT=0) as contextSetup unidirectional
+	left outer join 
+		celltrace.INTERNAL_PROC_RRC_CONN_SETUP(RRC_RESULT=0).std:unique(RAC_UE_REF,GLOBAL_CELL_ID).win:time(2 sec) as rrcSetup
+			on contextSetup.RAC_UE_REF = rrcSetup.RAC_UE_REF
+			and contextSetup.GLOBAL_CELL_ID = rrcSetup.GLOBAL_CELL_ID
+	left outer join 
+		celltrace.INTERNAL_PROC_S1_SIG_CONN_SETUP(s1_SIG_CONN_RESULT=0).std:unique(RAC_UE_REF,GLOBAL_CELL_ID).win:time(2 sec) as s1SigConnSetup
+			on contextSetup.RAC_UE_REF = s1SigConnSetup.RAC_UE_REF
+			and contextSetup.GLOBAL_CELL_ID = s1SigConnSetup.GLOBAL_CELL_ID;
+
+
+expression getFailedRrcSetupStartTime{rrc => formatInternalProcRrcConnSetupStartTime(rrc)}
+			
+@Name('FAILED_RRC_CONNECTION')
+insert into CALL_SETUP
+select
+	'FAILED_RRC_CONNECTION_EVENT'												as name,
+	rrc.version    									   							as version,
+	rrc.timestamp 																as timestamp,
+	rrc.subNetwork 									  							as subNetwork,
+	rrc.ne     									   								as ne,
+	current_timestamp()															as CORRELATION_TIME,
+		
+	rrc.ENBS1APID									 							as ENB_S1_AP_ID,
+	rrc.MMES1APID									 							as MME_S1_AP_ID,
+	rrc.GUMMEI																	as GUMMEI,
+	rrc.RAC_UE_REF   									            			as RAC_UE_REF,
+	
+    rrc.INITIAL_UE_IDENTITY_TYPE										 		as RRC_CONN_SETUP_INITIAL_UE_IDENTITY_TYPE,
+	rrc.INITIAL_UE_IDENTITY 													as RRC_CONN_SETUP_INITIAL_UE_IDENTITY,
+	rrc.RRC_RESULT																as RRC_CONN_SETUP_RRC_RESULT,
+	rrc.RRC_ESTABL_CAUSE														as RRC_CONN_SETUP_RRC_ESTABL_CAUSE,
+	getFailedRrcSetupStartTime(rrc) 											as RRC_CONN_SETUP_TIMESTAMP_START,
+	rrc.timestamp - getFailedRrcSetupStartTime(rrc) 							as RRC_CONN_SETUP_DURATION,
+	rrc.GLOBAL_CELL_ID															as RRC_CONN_SETUP_GLOBAL_CELL_ID
+from celltrace.INTERNAL_PROC_RRC_CONN_SETUP rrc
+where rrc.RRC_RESULT!=0;		
+
+
+expression getFailedS1SigSetupStartTime{s1 => formatInternalProcS1SigConnSetupStartTime(s1)}
+
+@Name('FAILED_S1_SIG_CONNECTION')
+insert into CALL_SETUP
+select
+	'FAILED_S1_SIG_CONNECTION_EVENT'											as name,
+	s1.version    									   							as version,
+	s1.timestamp 																as timestamp,
+	s1.subNetwork 									  							as subNetwork,
+	s1.ne     									   								as ne,
+	current_timestamp()															as CORRELATION_TIME,
+    
+    s1.ENBS1APID									 							as ENB_S1_AP_ID,
+	s1.MMES1APID									 							as MME_S1_AP_ID,
+	s1.GUMMEI																	as GUMMEI,
+	s1.RAC_UE_REF   									            			as RAC_UE_REF,
+    
+    s1.GLOBAL_CELL_ID															as s1_SIG_CONN_SETUP_GLOBAL_CELL_ID,
+	s1.s1_SIG_CONN_RESULT														as s1_SIG_CONN_SETUP_SIG_CONN_RESULT,
+	getFailedS1SigSetupStartTime(s1) 											as s1_SIG_CONN_SETUP_TIMESTAMP_START,
+	s1.timestamp - getFailedS1SigSetupStartTime(s1) 							as s1_SIG_CONN_SETUP_DURATION,
+	s1.RRC_ESTABL_CAUSE															as s1_SIG_CONN_SETUP_RRC_ESTABL_CAUSE
+from celltrace.INTERNAL_PROC_S1_SIG_CONN_SETUP s1
+where s1.s1_SIG_CONN_RESULT!=0;	
+
+
+expression getSuccessCount{ctxt_setup => getSuccessfulCtxtERABCount(ctxt_setup)}
+expression getFailedCtxtSetupStartTime{ctxt_setup => formatInternalProcInitialCtxtSetupStartTime(ctxt_setup)}
+
+@Name('FAILED_INITIAL_CTXT_SETUP')
+insert into CALL_SETUP
+select
+	'FAILED_INITIAL_CTXT_SETUP_EVENT'														as name,
+	ctxt_setup.version    									   								as version,
+	ctxt_setup.timestamp 																	as timestamp,
+	ctxt_setup.subNetwork 									  								as subNetwork,
+	ctxt_setup.ne     									   									as ne,
+	current_timestamp()						  												as CORRELATION_TIME,
+
+    
+    ctxt_setup.ENBS1APID									 								as ENB_S1_AP_ID,
+	ctxt_setup.MMES1APID									 								as MME_S1_AP_ID,
+	ctxt_setup.GUMMEI																		as GUMMEI,
+	ctxt_setup.RAC_UE_REF   									            				as RAC_UE_REF,
+	
+	ctxt_setup.GLOBAL_CELL_ID																as INITIAL_CTXT_SETUP_GLOBAL_CELL_ID,
+	ctxt_setup.p_3GPP_CAUSE  																as INITIAL_CTXT_SETUP_3GPP_CAUSE,
+	ctxt_setup.INITIAL_CTXT_RESULT															as INITIAL_CTXT_SETUP_INITIAL_CTXT_RESULT,
+	ctxt_setup.p_3GPP_CAUSE_GROUP															as INITIAL_CTXT_SETUP_3GPP_CAUSE_GROUP,
+	getFailedCtxtSetupStartTime(ctxt_setup) 												as INITIAL_CTXT_SETUP_TIMESTAMP_START,
+	ctxt_setup.timestamp - getFailedCtxtSetupStartTime(ctxt_setup) 							as INITIAL_CTXT_SETUP_DURATION,
+	ctxt_setup.SERVING_PLMN_ID																as INITIAL_CTXT_SETUP_SERVING_PLMN_ID,
+	formatArrayINITIAL_CTXT_SETUP_ERAB_RESULT_ARRAY(ctxt_setup)								as INITIAL_CTXT_SETUP_ERAB_RESULT_ARRAY,
+	formatArrayINITIAL_CTXT_SETUP_ERAB_QCI_ARRAY(ctxt_setup)								as INITIAL_CTXT_SETUP_ERAB_QCI_ARRAY,
+	formatArrayINITIAL_CTXT_SETUP_ERAB_REQ_PCI_ARRAY(ctxt_setup)							as INITIAL_CTXT_SETUP_ERAB_REQ_PCI_ARRAY,
+	formatArrayINITIAL_CTXT_SETUP_ERAB_REQ_ATT_ACC_TYPE_ARRAY(ctxt_setup)					as INITIAL_CTXT_SETUP_ERAB_REQ_ATT_ACC_TYPE_ARRAY,
+	formatArrayINITIAL_CTXT_SETUP_ERAB_FAILURE_3GPP_CAUSE_GROUP_ARRAY(ctxt_setup)			as INITIAL_CTXT_SETUP_ERAB_FAILURE_3GPP_CAUSE_GROUP_ARRAY,
+	formatArrayINITIAL_CTXT_SETUP_ERAB_ARP_ARRAY(ctxt_setup)                				as INITIAL_CTXT_SETUP_ERAB_ARP_ARRAY,	
+	formatArrayINITIAL_CTXT_SETUP_ERAB_REQ_PVI_ARRAY(ctxt_setup)   		  					as INITIAL_CTXT_SETUP_ERAB_REQ_PVI_ARRAY,
+	formatArrayINITIAL_CTXT_SETUP_ERAB_SUCC_ATT_ACC_TYPE_ARRAY(ctxt_setup)  				as INITIAL_CTXT_SETUP_ERAB_SUCC_ATT_ACC_TYPE_ARRAY,
+	formatArrayINITIAL_CTXT_SETUP_ERAB_FAILURE_3GPP_CAUSE_ARRAY(ctxt_setup) 				as INITIAL_CTXT_SETUP_ERAB_FAILURE_3GPP_CAUSE_ARRAY
+from celltrace.INTERNAL_PROC_INITIAL_CTXT_SETUP ctxt_setup
+where ctxt_setup.INITIAL_CTXT_RESULT!=0 AND getSuccessCount(ctxt_setup)=0;

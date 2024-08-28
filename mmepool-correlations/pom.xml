@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.ericsson.mmepool</groupId>
+        <artifactId>mmepool</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>mmepool-correlations</artifactId>
+    <name>mmepool-correlations</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.espertech</groupId>
+            <artifactId>esper</artifactId>
+            <version>4.9.0</version>
+            <classifier>IGC71755951</classifier><!-- This is the bugfix version of
+				4.9.0 where length window and time window work together. -->
+        </dependency>
+        <dependency>
+            <groupId>com.ericsson.mmepool</groupId>
+            <artifactId>mmepool-metadata</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ericsson.mmepool</groupId>
+            <artifactId>mmepool-testsuite</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ericsson.oss.itpf.common</groupId>
+            <artifactId>xstream-loading</artifactId>
+            <version>${version.xstream}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.ericsson.oss.services</groupId>
+            <artifactId>eps-dist</artifactId>
+            <version>${version.eps}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${version.joda.time}</version>
+        </dependency>
+    </dependencies>
+
+</project>
